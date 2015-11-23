@@ -1,4 +1,6 @@
 import logging
+import sys
+import argparse
 
 # Set the log output file, and lof level
 logging.basicConfig(filename="snippets.log", level=logging.DEBUG)
@@ -25,3 +27,15 @@ def get(name):
 
     logging.error("FIXME: Umimplemented - get({!r})".format(name))
     return ""
+
+def main():
+    """Mian function"""
+    logging.info("Constructing parser")
+    parser = argparse.ArgumentParser(
+        description="Store and retrieve snippetsof text")
+    arguments = parser.parse_args(sys.argv[1:])
+
+if __name__ == "__main__":
+    main()
+
+
