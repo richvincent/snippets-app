@@ -22,8 +22,15 @@ def put(args):
 
     logging.info('Storing snippet {!r}: {!r}'.format(name, snippet))
     cursor = connection.cursor()
-    command = 'insert into snippets values (%s, %s)'
-    cursor.execute(command, (name, snippet))
+    try:
+        command = 'insert into snippets values (%s, %s)'
+        cursor.execute(command, (name, snippet))
+    except:
+        connection.rollback()
+        command = "update snippets set \
+            message=\'{}\'where keyword=\'{}\'".format(snippet, name)
+        cursor.execute(command, (snippet, name))
+
     connection.commit()
     logging.debug("Snippet stored successfully")
 
@@ -36,10 +43,16 @@ def get(args):
     command = 'select * from snippets where keyword=\'{}\''
     cursor.execute(command.format(name))
     record = cursor.fetchone()
+    connection.commit()
     logging.debug("Snippet retrieved successfully")
-    for field in record:
-        print(field)
 
+    if not record:
+        print('No snippet was found with the name {}'.format(name))
+    else:
+        for field in record:
+            print(field)
+
+        return(record)
 
 @click.command()
 @click.argument('command', nargs=1)
