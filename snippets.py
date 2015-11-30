@@ -1,41 +1,35 @@
+import click
 import logging
-import sys
-import argparse
+import psycopg2
+from subprocess import call
 
-# Set the log output file, and lof level
+
+# Set the log output file, and log level
 logging.basicConfig(filename="snippets.log", level=logging.DEBUG)
 
-
-def put(name, snippet):
-    """
-    Store a snippet with an associated name.
-
-    Returns the name and the snippet
-    """
-    logging.error("FIXME: Unimplemented - put({!r}, {!r})"
-                  .format(name, snippet))
-    return name, snippet
+# Connecting to the PostGreSQL Database
+logging.debug("Connecting to PostgreSQL")
+connection = psycopg2.connect(database="snippets")
+logging.debug("Database connection established")
 
 
-def get(name):
-    """Retrieve the snippet with a given name.
+@click.command()
+@click.option('--name', help='Enter a name')
+@click.option('--snippet', help='Enter a snippet')
+def main(name, snippet):
+    """ Main Funnction """
+    call('clear')
+    logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
+    cursor = connection.cursor()
+    command = "insert into snippets values (%s, %s)"
+    cursor.execute(command, (name, snippet))
+    connection.commit()
+    logging.debug("Snippet stored successfully.")
 
-    If there is no such snippet...
-
-    Returns the snippet.
-    """
-
-    logging.error("FIXME: Umimplemented - get({!r})".format(name))
-    return ""
-
-def main():
-    """Mian function"""
-    logging.info("Constructing parser")
-    parser = argparse.ArgumentParser(
-        description="Store and retrieve snippets of text")
-    arguments = parser.parse_args(sys.argv[1:])
+    print('\n')
+    print(name)
+    print(snippet)
+    print('\n\n\n')
 
 if __name__ == "__main__":
     main()
-
-
